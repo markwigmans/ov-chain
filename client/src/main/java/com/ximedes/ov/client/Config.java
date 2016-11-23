@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ximedes.ov.engine;
+package com.ximedes.ov.client;
 
 import com.chain.exception.ChainException;
 import com.chain.http.Client;
@@ -26,4 +26,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class Config {
 
+    @Bean
+    Client client() throws ChainException {
+        Client client = new Client();
+        return client;
+    }
 }

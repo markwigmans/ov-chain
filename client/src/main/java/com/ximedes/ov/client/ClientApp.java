@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ximedes.ov.engine;
+package com.ximedes.ov.client;
 
-import com.chain.exception.ChainException;
-import com.chain.http.Client;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Configuration / Bean definitions
+ *
  */
-@Configuration
-public class Config {
-
+@SpringBootApplication
+public class ClientApp {
+    public static void main(String[] args) {
+        SpringApplication.run(ClientApp.class, args);
+    }
 }
