@@ -54,6 +54,7 @@
             <properties>
                 <maven.test.skip>true</maven.test.skip>
                 <maven.javadoc.skip>true</maven.javadoc.skip>
+                <gatling.skip>true</gatling.skip>
             </properties>
         </profile>
     </profiles>
