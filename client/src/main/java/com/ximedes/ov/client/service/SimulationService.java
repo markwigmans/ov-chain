@@ -13,20 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ximedes.ov.client;
+package com.ximedes.ov.client.service;
 
-import com.ximedes.ov.shared.BuildInfo;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
+import com.chain.http.Client;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  *
  */
-@EnableAutoConfiguration
-@ComponentScan(basePackageClasses = {ClientConfig.class, BuildInfo.class})
-public class ClientApp {
-    public static void main(String[] args) {
-        SpringApplication.run(ClientApp.class, args);
+@Service
+@Slf4j
+public class SimulationService {
+
+    private final Client client;
+    private final AccountService accountService;
+
+    public SimulationService(Client client, AccountService accountService) {
+        this.client = client;
+        this.accountService = accountService;
+    }
+
+    public void reset() throws Exception {
+        log.info("Reset simulation");
+        accountService.reset();
     }
 }

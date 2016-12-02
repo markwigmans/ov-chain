@@ -1,0 +1,13 @@
+syntax = "proto2";
+
+option java_package = "com.ximedes.ov.protocol";
+option java_outer_classname = "ClusterProtocol";
+
+message BackendRegistration {
+    repeated Actor actors = 1;
+}
+
+message Actor {
+    required string type = 1;
+    required string actor_path = 2;
+}

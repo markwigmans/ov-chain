@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ximedes.ov.client;
+package ov
 
-import com.ximedes.ov.shared.BuildInfo;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
+import io.gatling.core.Predef._
+import io.gatling.http.Predef._
 
 /**
- *
- */
-@EnableAutoConfiguration
-@ComponentScan(basePackageClasses = {ClientConfig.class, BuildInfo.class})
-public class ClientApp {
-    public static void main(String[] args) {
-        SpringApplication.run(ClientApp.class, args);
-    }
+  *
+  */
+class ResetSimulation extends Simulation {
+
+  val initChain =
+    exec(http("init simulation").post("reset").check(status.is(200)))
+
+  val init = scenario("init").exec(initChain)
+
+  setUp(init.inject(atOnceUsers(1)).protocols(Config.httpConf))
 }

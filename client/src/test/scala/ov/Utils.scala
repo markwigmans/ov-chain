@@ -13,22 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ximedes.ov.client;
+package ov
 
-import com.chain.exception.ChainException;
-import com.chain.http.Client;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import scala.util.Random
 
 /**
- * Configuration / Bean definitions
- */
-@Configuration
-public class Config {
+  *
+  */
+object Utils {
 
-    @Bean
-    Client client() throws ChainException {
-        Client client = new Client();
-        return client;
-    }
+  // set the seed so the test result is reproducible
+  private val RNG = new Random(1234)
+
+  def randInt(a: Int) = RNG.nextInt(a)
+
+  def randInt(a: Int, b: Int) = RNG.nextInt(b - a) + a
 }

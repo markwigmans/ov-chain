@@ -13,20 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ximedes.ov.client;
+package ov
 
-import com.ximedes.ov.shared.BuildInfo;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
+import io.gatling.core.Predef._
+import io.gatling.http.Predef._
+
+import scala.concurrent.duration._
 
 /**
- *
- */
-@EnableAutoConfiguration
-@ComponentScan(basePackageClasses = {ClientConfig.class, BuildInfo.class})
-public class ClientApp {
-    public static void main(String[] args) {
-        SpringApplication.run(ClientApp.class, args);
-    }
+  *
+  */
+object Config {
+
+  // URL of the System Under Test
+  val httpConf = http.baseURL("http://localhost:8090/")
+
+  val accounts = 10000
+  val merchants = 1000
+  val initUsers = 10
+  val rampUpInit = 10 seconds
+
+  val transfers = 1000000
+  val loadUsers = 20
+  val rampUpLoad = 10 seconds
+
+
 }

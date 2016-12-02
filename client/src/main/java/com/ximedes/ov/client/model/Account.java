@@ -13,20 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ximedes.ov.client;
+package com.ximedes.ov.client.model;
 
-import com.ximedes.ov.shared.BuildInfo;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.context.annotation.ComponentScan;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import lombok.Builder;
+import lombok.Value;
 
 /**
  *
  */
-@EnableAutoConfiguration
-@ComponentScan(basePackageClasses = {ClientConfig.class, BuildInfo.class})
-public class ClientApp {
-    public static void main(String[] args) {
-        SpringApplication.run(ClientApp.class, args);
+@JsonDeserialize(builder = Account.AccountBuilder.class)
+@Builder
+@Value
+public class Account {
+    String accountId;
+    Integer balance;
+
+    @JsonPOJOBuilder(withPrefix = "")
+    public static final class AccountBuilder {
     }
 }

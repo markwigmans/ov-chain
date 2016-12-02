@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ximedes.ov.client;
+package com.ximedes.ov.backend;
 
 import com.ximedes.ov.shared.BuildInfo;
 import org.springframework.boot.SpringApplication;
@@ -24,9 +24,9 @@ import org.springframework.context.annotation.ComponentScan;
  *
  */
 @EnableAutoConfiguration
-@ComponentScan(basePackageClasses = {ClientConfig.class, BuildInfo.class})
-public class ClientApp {
+@ComponentScan(basePackageClasses = {BackendConfig.class, BuildInfo.class})
+public class BackendApp {
     public static void main(String[] args) {
-        SpringApplication.run(ClientApp.class, args);
+        SpringApplication.run(BackendApp.class, args);
     }
 }

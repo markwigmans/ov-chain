@@ -1,0 +1,17 @@
+syntax = "proto2";
+
+option java_package = "com.ximedes.ov.protocol";
+option java_outer_classname = "BackendProtocol";
+
+message IdRequest {
+}
+message IdResponse {
+    optional int32 id = 1;
+}
+
+message IdsRequest {
+    required int32 number = 1;
+}
+message IdsResponse {
+    repeated int32 ids = 1;
+}
