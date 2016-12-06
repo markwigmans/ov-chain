@@ -22,21 +22,33 @@ import com.chain.signing.HsmSigner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  *
  */
 @Component
 public class Keys {
 
-    @Autowired
-    private Client client;
+    private final Client client;
+    private Map<String,Boolean> initialized;
+
+    public Keys(Client client) {
+        this.client = client;
+        this.initialized = new HashMap<>();
+    }
 
     public MockHsm.Key getKey(final String alias) throws ChainException {
         MockHsm.Key key = findByAlias(alias);
         if (key == null) {
             key = MockHsm.Key.create(client, alias);
-            HsmSigner.addKey(key, MockHsm.getSignerClient(client));
         }
+        if (!initialized.getOrDefault(alias, false)) {
+            HsmSigner.addKey(key, MockHsm.getSignerClient(client));
+            initialized.put(alias, true);
+        }
+
         return key;
     }
 
