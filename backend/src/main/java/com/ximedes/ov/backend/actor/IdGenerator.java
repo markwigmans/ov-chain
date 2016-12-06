@@ -19,6 +19,7 @@ import akka.actor.AbstractLoggingActor;
 import akka.actor.Props;
 import akka.japi.pf.ReceiveBuilder;
 import com.google.protobuf.TextFormat;
+import com.ximedes.ov.shared.ClusterConstants;
 
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -65,7 +66,9 @@ public class IdGenerator extends AbstractLoggingActor {
     IdsResponse createResponse(final int start, final int count) {
         log().debug("createResponse({},{})'", start, count);
         final IdsResponse.Builder builder = IdsResponse.newBuilder().
-                addAllIds(IntStream.range(start, start + count).boxed().collect(Collectors.toList()));
+                addAllIds(IntStream.range(start, start + count).boxed()
+                        .map(i -> ClusterConstants.ACCOUNT_PREFIX + i)
+                        .collect(Collectors.toList()));
         return builder.build();
     }
 

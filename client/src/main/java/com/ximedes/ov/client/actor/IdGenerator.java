@@ -146,7 +146,7 @@ class IdGenerator extends AbstractActorWithUnboundedStash {
                 log.debug("queue still empty");
                 return false;
             } else {
-                final Integer id = (Integer) ids.remove();
+                final String id = (String) ids.remove();
                 sender.tell(IdResponse.newBuilder().setId(id).build(), self);
 
                 // check if we need more ID's
@@ -163,7 +163,7 @@ class IdGenerator extends AbstractActorWithUnboundedStash {
             actor.tell(IdsRequest.newBuilder().setNumber(count).build(), self);
         }
 
-        public void addIds(final List<Integer> list) {
+        public void addIds(final List<String> list) {
             log.debug("addIds({}), old size ids:{}", list.size(), ids.size());
             list.forEach(ids::add);
         }

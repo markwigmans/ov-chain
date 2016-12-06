@@ -71,14 +71,25 @@ public class LedgerService implements Serializable {
         log.debug("sendBatch: {}", txBuilders);
 
         final BatchResponse<Transaction.Template> buildTxBatch = Transaction.buildBatch(client, txBuilders);
+        if (!buildTxBatch.errors().isEmpty()) {
+            for (Map.Entry<Integer, APIException> err : buildTxBatch.errorsByIndex().entrySet()) {
+                log.warn("Error build transaction " + err.getKey() + ": " + err.getValue());
+            }
+        }
         Assert.isTrue(buildTxBatch.errors().isEmpty(), "Errors in build template");
+
         final BatchResponse<Transaction.Template> signTxBatch = HsmSigner.signBatch(buildTxBatch.successes());
+        if (!signTxBatch.errors().isEmpty()) {
+            for (Map.Entry<Integer, APIException> err : signTxBatch.errorsByIndex().entrySet()) {
+                log.warn("Error build transaction " + err.getKey() + ": " + err.getValue());
+            }
+        }
         Assert.isTrue(signTxBatch.errors().isEmpty(), "Errors in sign template");
 
         final BatchResponse<Transaction.SubmitResponse> submitTxBatch = Transaction.submitBatch(client, signTxBatch.successes());
         if (!submitTxBatch.errors().isEmpty()) {
             for (Map.Entry<Integer, APIException> err : submitTxBatch.errorsByIndex().entrySet()) {
-                System.out.println("Error submitting transaction " + err.getKey() + ": " + err.getValue());
+                log.warn("Error submitting transaction " + err.getKey() + ": " + err.getValue());
             }
         }
         Assert.isTrue(submitTxBatch.errors().isEmpty(), "Errors in submit template");

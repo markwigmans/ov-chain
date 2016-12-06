@@ -22,4 +22,6 @@ public class ClusterConstants {
     public static final String BACKEND = "backend";
     public static final String FRONTEND = "frontend";
     public static final String CLUSTER = "ov-chain-cluster";
+
+    public static final String ACCOUNT_PREFIX = "ov-chain-";
 }

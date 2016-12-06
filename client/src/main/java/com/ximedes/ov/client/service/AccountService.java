@@ -29,6 +29,7 @@ import com.ximedes.ov.client.ClientConfig;
 import com.ximedes.ov.client.actor.ActorManager;
 import com.ximedes.ov.client.model.Account;
 import com.ximedes.ov.shared.Assets;
+import com.ximedes.ov.shared.ClusterConstants;
 import com.ximedes.ov.shared.Keys;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -72,7 +73,7 @@ public class AccountService {
 
         return ask.thenApply(r -> {
             final IdResponse response = (IdResponse) r;
-            final String alias = Integer.toString(response.getId());
+            final String alias = response.getId();
             log.info("createAccount({})", alias);
             addToBlockChain(alias, request.getBalance());
 
@@ -110,19 +111,23 @@ public class AccountService {
         final com.chain.api.Account.Items items = new com.chain.api.Account.QueryBuilder().execute(client);
         while (items.hasNext()) {
             final com.chain.api.Account account = items.next();
-            log.info("reset account: {}", account.alias);
-            final long balance = getBalance(account.alias).longValue();
+            if (account.alias.startsWith(ClusterConstants.ACCOUNT_PREFIX)) {
+                log.info("reset account: {}", account.alias);
+                final long balance = getBalance(account.alias).longValue();
 
-            // retire the balance of the given account, to create a '0' balance starting point
-            if (balance > 0) {
-                ledger.tell(new Transaction.Builder()
-                        .addAction(new Transaction.Action.SpendFromAccount()
-                                .setAccountId(account.id)
-                                .setAssetId(eur.id)
-                                .setAmount(balance))
-                        .addAction(new Transaction.Action.Retire()
-                                .setAssetId(eur.id)
-                                .setAmount(balance)), ActorRef.noSender());
+                // retire the balance of the given account, to create a '0' balance starting point
+                if (balance > 0) {
+                    ledger.tell(new Transaction.Builder()
+                            .addAction(new Transaction.Action.SpendFromAccount()
+                                    .setAccountId(account.id)
+                                    .setAssetId(eur.id)
+                                    .setAmount(balance))
+                            .addAction(new Transaction.Action.Retire()
+                                    .setAssetId(eur.id)
+                                    .setAmount(balance)), ActorRef.noSender());
+                }
+            } else {
+                log.debug("other account: '{}'", account.alias);
             }
         }
     }
@@ -154,6 +159,10 @@ public class AccountService {
             log.warn("findByAlias() : Exception: {}", e.toString());
         }
         return null;
+    }
+
+    String createAlias(final String alias) {
+        return "ov-chain-" + alias;
     }
 
 }
