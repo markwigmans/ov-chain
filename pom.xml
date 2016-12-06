@@ -36,10 +36,13 @@
         <developer>
             <email>mark.wigmans@ximedes.com</email>
             <name>Mark Wigmans</name>
-            <url>https://github.com/markwigmans</url>
             <id>mawi</id>
         </developer>
     </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/markwigmans/ov-chain.git</connection>
+    </scm>
 
     <properties>
         <java.version>1.8</java.version>
