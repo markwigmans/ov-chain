@@ -19,14 +19,15 @@ import com.chain.api.Asset;
 import com.chain.api.MockHsm;
 import com.chain.exception.ChainException;
 import com.chain.http.Client;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 /**
  * Assets to be used by the transfers / balances.
  */
 @Component
+@Lazy
 public class Assets {
 
     private final Client client;

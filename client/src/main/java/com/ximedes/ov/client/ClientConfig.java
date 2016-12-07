@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 public class ClientConfig {
 
     @Getter
-    @Value("${key.alias:ovchain}")
+    @Value("${key.alias:ovchain-client}")
     private String keyAlias;
 
     @Getter

@@ -14,4 +14,4 @@
 # limitations under the License.
 #
 
-java -Dserver.port=8190 -jar target/client.jar
+java -Dserver.port=8290 -jar target/feed.jar

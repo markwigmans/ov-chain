@@ -309,6 +309,7 @@
         <module>engine</module>
         <module>client</module>
         <module>backend</module>
+        <module>feed</module>
     </modules>
 
 </project>

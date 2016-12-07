@@ -15,47 +15,50 @@
  */
 package com.ximedes.ov.shared;
 
-import com.chain.api.MockHsm;
+import com.chain.api.Transaction;
 import com.chain.exception.ChainException;
 import com.chain.http.Client;
-import com.chain.signing.HsmSigner;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  *
  */
 @Component
 @Lazy
-public class Keys {
+@Slf4j
+public class Feeds {
 
     private final Client client;
-    private Map<String,Boolean> initialized;
 
-    public Keys(Client client) {
+    /**
+     * Auto wired constructor
+     */
+    @Autowired
+    public Feeds(Client client) {
         this.client = client;
-        this.initialized = new HashMap<>();
     }
 
-    public MockHsm.Key getKey(final String alias) throws ChainException {
-        MockHsm.Key key = findByAlias(alias);
-        if (key == null) {
-            key = MockHsm.Key.create(client, alias);
+    public Transaction.Feed getFeed(final String alias, final String filter) throws ChainException {
+        Transaction.Feed feed = findByAlias(alias);
+        if (feed == null) {
+            feed = Transaction.Feed.create(client, alias, filter);
         }
-        if (!initialized.getOrDefault(alias, false)) {
-            HsmSigner.addKey(key, MockHsm.getSignerClient(client));
-            initialized.put(alias, true);
-        }
-
-        return key;
+        return feed;
     }
 
-    MockHsm.Key findByAlias(final String alias) throws ChainException {
-        final MockHsm.Key.Items items = new MockHsm.Key.QueryBuilder().addAlias(alias).execute(client);
-        return items.hasNext() ? items.next() : null;
+    public Transaction.Feed getFeed(final String alias) throws ChainException {
+        return getFeed(alias, null);
+    }
+
+    Transaction.Feed findByAlias(final String alias) throws ChainException {
+        try {
+            return Transaction.Feed.getByAlias(client, alias);
+        } catch (Exception  e) {
+            log.debug("Exception", e);
+        }
+        return null;
     }
 }

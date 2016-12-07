@@ -61,9 +61,4 @@ public class BackendConfig {
         final Config config = ConfigFactory.parseMap(options).withFallback(ConfigFactory.load());
         return ActorSystem.create(ClusterConstants.CLUSTER, config);
     }
-
-    @Bean
-    Client client() throws ChainException {
-        return new Client();
-    }
 }
