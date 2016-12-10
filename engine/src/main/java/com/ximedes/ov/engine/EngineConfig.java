@@ -24,6 +24,6 @@ import org.springframework.context.annotation.Configuration;
  * Configuration / Bean definitions
  */
 @Configuration
-public class Config {
+public class EngineConfig {
 
 }

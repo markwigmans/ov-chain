@@ -15,13 +15,17 @@
  */
 package com.ximedes.ov.engine;
 
+import com.ximedes.ov.shared.BuildInfo;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
 /**
  *
  */
-@SpringBootApplication
+@EnableAutoConfiguration
+@ComponentScan(basePackageClasses = {EngineConfig.class, BuildInfo.class})
 public class EngineApp {
     public static void main(String[] args) {
         SpringApplication.run(EngineApp.class, args);

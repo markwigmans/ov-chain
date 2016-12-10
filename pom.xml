@@ -49,6 +49,7 @@
         <akka.version>2.4.14</akka.version>
         <akka-http.version>10.0.0</akka-http.version>
         <protobuf.version>2.6.1</protobuf.version>
+        <camel.version>2.18.1</camel.version>
     </properties>
 
     <profiles>
@@ -147,10 +148,12 @@
             </dependency>
 
             <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-test</artifactId>
-                <scope>test</scope>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-spring-boot-starter</artifactId>
+                <version>${camel.version}</version>
             </dependency>
+
+            <!-- test frameworks -->
             <dependency>
                 <groupId>com.typesafe.akka</groupId>
                 <artifactId>akka-testkit_2.11</artifactId>
