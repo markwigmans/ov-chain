@@ -50,6 +50,8 @@
         <akka-http.version>10.0.0</akka-http.version>
         <protobuf.version>2.6.1</protobuf.version>
         <camel.version>2.18.1</camel.version>
+
+        <docker.image.prefix>ov</docker.image.prefix>
     </properties>
 
     <profiles>
@@ -152,6 +154,11 @@
                 <artifactId>camel-spring-boot-starter</artifactId>
                 <version>${camel.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-swagger-java</artifactId>
+                <version>${camel.version}</version>
+            </dependency>
 
             <!-- test frameworks -->
             <dependency>
@@ -170,6 +177,12 @@
                 <groupId>com.typesafe.akka</groupId>
                 <artifactId>akka-http-testkit_2.11</artifactId>
                 <version>${akka-http.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-test-spring</artifactId>
+                <version>${camel.version}</version>
                 <scope>test</scope>
             </dependency>
 
@@ -281,6 +294,32 @@
                             </goals>
                         </execution>
                     </executions>
+                </plugin>
+
+                <!-- docker support -->
+                <plugin>
+                    <groupId>com.spotify</groupId>
+                    <artifactId>docker-maven-plugin</artifactId>
+                    <version>0.4.13</version>
+                    <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>build</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <imageName>${docker.image.prefix}/${project.artifactId}</imageName>
+                        <dockerDirectory>${project.basedir}/src/main/docker</dockerDirectory>
+                        <resources>
+                            <resource>
+                                <targetPath>/</targetPath>
+                                <directory>${project.build.directory}</directory>
+                                <include>${project.build.finalName}.jar</include>
+                            </resource>
+                        </resources>
+                    </configuration>
                 </plugin>
 
                 <!-- for gatling tests -->
