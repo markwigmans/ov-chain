@@ -20,9 +20,9 @@ import akka.actor.ActorSystem;
 import akka.pattern.PatternsCS;
 import akka.routing.RoundRobinPool;
 import akka.util.Timeout;
+import com.ximedes.ov.actor.ClusterActorProxy;
 import com.ximedes.ov.client.ClientConfig;
-import com.ximedes.ov.client.service.LedgerService;
-import com.ximedes.ov.shared.ClusterActors;
+import com.ximedes.ov.shared.ClusterActorType;
 import com.ximedes.ov.shared.ClusterConstants;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -30,8 +30,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
+import com.ximedes.ov.actor.*;
+
 /**
- * Created by mawi on 13/11/2015.
+ *
  */
 @Component("frontendActorManager")
 @Slf4j
@@ -47,22 +49,27 @@ public class ActorManager {
     /**
      * Auto wired constructor
      */
-    ActorManager(final ActorSystem system, final ClientConfig config, LedgerService ledgerService) throws Exception {
+    ActorManager(final ActorSystem system, final ClientConfig config) throws Exception {
         final Timeout timeout = Timeout.apply(config.getCreationTimeout(), TimeUnit.SECONDS);
 
         final ActorRef supervisor = system.actorOf(Supervisor.props(), "supervisor");
 
-        final ActorRef idActor = (ActorRef) PatternsCS.ask(supervisor, new Supervisor.NamedProps(BackendProxy.props(ClusterActors.ID_GENERATOR),
+        final ActorRef idActor = (ActorRef) PatternsCS.ask(supervisor, new Supervisor.NamedProps(ClusterActorProxy.props(ClusterActorType.ID_GENERATOR),
                 "proxy-idActor"), timeout).toCompletableFuture().get();
-
         this.idGenerator = (ActorRef) PatternsCS.ask(supervisor, new Supervisor.NamedProps(new RoundRobinPool(config.getLocalIdActorPool())
-                .props(IdGenerator.props(idActor, config.getIdPoolSize())), "idGeneratorRouter"), timeout).toCompletableFuture().get();
+                .props(IdGenerator.props(idActor, config.getIdPoolSize())),
+                "idGeneratorRouter"), timeout).toCompletableFuture().get();
 
-        this.resetActor = (ActorRef) PatternsCS.ask(supervisor, new Supervisor.NamedProps(ResetActor.props(), "resetActor"), timeout).toCompletableFuture().get();
+        this.resetActor = (ActorRef) PatternsCS.ask(supervisor, new Supervisor.NamedProps(ResetActor.props(),
+                "resetActor"), timeout).toCompletableFuture().get();
 
-        this.ledgerActor = (ActorRef) PatternsCS.ask(supervisor, new Supervisor.NamedProps(LedgerActor.props(ledgerService), "ledgerActor"), timeout).toCompletableFuture().get();
+        final ActorRef proxyLedgerActor = (ActorRef) PatternsCS.ask(supervisor,
+                new Supervisor.NamedProps(ClusterActorProxy.props(ClusterActorType.BLOCKCHAIN_PROXY),
+                "proxy-ledgerActor"), timeout).toCompletableFuture().get();
+        this.ledgerActor = (ActorRef) PatternsCS.ask(supervisor, new Supervisor.NamedProps(LedgerActor.props(proxyLedgerActor),
+                "ledgerActor"), timeout).toCompletableFuture().get();
 
         // register frontend to the cluster
-        system.actorOf(ClusterManager.props(idActor), ClusterConstants.FRONTEND);
+        system.actorOf(ClusterManager.props(idActor, proxyLedgerActor), ClusterConstants.FRONTEND);
     }
 }

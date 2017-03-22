@@ -1,0 +1,41 @@
+version: '2'
+
+services:
+  frontend:
+    image: ov/client
+    ports:
+      - "2551"
+      - "8080"
+    links:
+      - backend
+    environment:
+      - spring.profiles.include=docker
+      - seed.hostname=backend
+      - clustering.hostname=
+      # needed for haproxy
+      - EXCLUDE_PORTS=2551
+
+#  engine:
+#    image: ov/engine
+#    environment:
+#      - spring.profiles.include=docker
+
+  backend:
+    image: ov/backend
+    ports:
+      - "2550:2550"
+    environment:
+      - spring.profiles.include=docker
+      - clustering.hostname=backend
+
+  lb:
+    image: dockercloud/haproxy
+    ports:
+      - "80:80"
+    links:
+      - frontend
+    volumes:
+      # to retrieve information about other docker images
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+     - OPTION=httpchk get /check

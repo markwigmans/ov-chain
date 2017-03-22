@@ -18,6 +18,13 @@ package com.ximedes.ov.shared;
 /**
  *
  */
-public enum ClusterActors {
+public enum ClusterActorType {
+    /**
+     * Generate unique ID's on this cluster
+     */
     ID_GENERATOR,
+    /**
+     * proxy to the blockchain, which likes to be connected via localhost
+     */
+    BLOCKCHAIN_PROXY
 }

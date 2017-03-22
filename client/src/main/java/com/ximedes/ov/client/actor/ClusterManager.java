@@ -19,39 +19,51 @@ import akka.actor.AbstractLoggingActor;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.cluster.Cluster;
+import akka.cluster.ClusterEvent;
 import akka.japi.pf.ReceiveBuilder;
 
-import static com.ximedes.ov.protocol.ClusterProtocol.BackendRegistration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static com.ximedes.ov.protocol.ClusterProtocol.Registration;
 
 /**
  * Created by mawi on 16/08/2016.
  */
 public class ClusterManager extends AbstractLoggingActor {
 
-    private final ActorRef idActor;
+    private final List<ActorRef> actors;
     private final Cluster cluster;
 
     /**
      * Create Props for an actor of this type.
      */
-    public static Props props(final ActorRef idActor) {
-        return Props.create(ClusterManager.class, idActor);
+    public static Props props(final ActorRef... actors) {
+        return Props.create(ClusterManager.class, Arrays.asList(actors));
     }
 
-    private ClusterManager(ActorRef idActor) {
-        this.idActor = idActor;
+    private ClusterManager(List<ActorRef> actors) {
+        this.actors = new ArrayList<>(actors);
         this.cluster = Cluster.get(getContext().system());
 
         receive(ReceiveBuilder
-                .match(BackendRegistration.class, this::BackendRegistration)
+                .match(Registration.class, this::Registration)
                 .matchAny(this::unhandled)
                 .build());
     }
 
-    private void BackendRegistration(final BackendRegistration message) {
-        log().info("BackendRegistration");
+    private void Registration(final Registration message) {
+        log().debug("Registration");
         // initialise the rest of the system
-        idActor.tell(message, self());
+        actors.stream().forEach(a -> a.tell(message, self()));
+    }
+
+    @Override
+    public void preStart() {
+        //subscribe to cluster changes, MemberUp
+        cluster.subscribe(self(), ClusterEvent.initialStateAsEvents(),
+                ClusterEvent.MemberRemoved.class, ClusterEvent.UnreachableMember.class);
     }
 
     @Override

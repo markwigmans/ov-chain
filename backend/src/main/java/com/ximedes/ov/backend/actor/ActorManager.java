@@ -20,6 +20,7 @@ import akka.actor.ActorSystem;
 import akka.pattern.PatternsCS;
 import akka.util.Timeout;
 import com.ximedes.ov.backend.BackendConfig;
+import com.ximedes.ov.shared.ClusterConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -44,6 +45,6 @@ class ActorManager {
                 "idGenerator"), timeout).toCompletableFuture().get();
 
         // create
-        system.actorOf(ClusterManager.props(idGenerator), "backend");
+        system.actorOf(ClusterManager.props(idGenerator), ClusterConstants.BACKEND);
     }
 }

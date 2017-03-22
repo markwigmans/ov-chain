@@ -22,7 +22,6 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.pf.ReceiveBuilder;
 import com.google.protobuf.TextFormat;
-import com.ximedes.ov.protocol.BackendProtocol;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import scala.Option;
@@ -31,8 +30,7 @@ import scala.runtime.BoxedUnit;
 
 import java.util.List;
 
-import static com.ximedes.ov.protocol.BackendProtocol.*;
-import static com.ximedes.ov.protocol.BackendProtocol.IdsResponse;
+import static com.ximedes.ov.protocol.IdProtocol.*;
 import static com.ximedes.ov.protocol.SimulationProtocol.Reset;
 import static com.ximedes.ov.protocol.SimulationProtocol.Reseted;
 

@@ -24,7 +24,7 @@ import com.ximedes.ov.shared.ClusterConstants;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static com.ximedes.ov.protocol.BackendProtocol.*;
+import static com.ximedes.ov.protocol.IdProtocol.*;
 import static com.ximedes.ov.protocol.SimulationProtocol.Reset;
 import static com.ximedes.ov.protocol.SimulationProtocol.Reseted;
 

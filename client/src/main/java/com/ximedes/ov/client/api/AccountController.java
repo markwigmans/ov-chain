@@ -19,7 +19,6 @@ import com.chain.exception.ChainException;
 import com.ximedes.ov.client.model.Account;
 import com.ximedes.ov.client.service.AccountService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,16 +52,5 @@ class AccountController {
                 return new ResponseEntity(HttpStatus.SERVICE_UNAVAILABLE);
             }
         });
-    }
-
-    @RequestMapping(value = "/account/{accountId}", method = RequestMethod.GET)
-    public ResponseEntity queryAccount(@PathVariable String accountId) throws ChainException {
-        final Optional<Account> account = accountService.queryAccount(accountId);
-        if (account.isPresent()) {
-            return new ResponseEntity(account.get(), HttpStatus.OK);
-        } else {
-            log.warn("queryAccount({}) : not found", accountId);
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
-        }
     }
 }

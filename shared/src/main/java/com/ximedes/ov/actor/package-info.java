@@ -13,16 +13,4 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ximedes.ov.shared;
-
-/**
- * The roles within the cluster
- */
-public class ClusterConstants {
-    public static final String BACKEND = "backend";
-    public static final String FRONTEND = "frontend";
-    public static final String BLOCKCHAIN = "blockchain";
-    public static final String CLUSTER = "ov-chain-cluster";
-
-    public static final String ACCOUNT_PREFIX = "ov-chain-";
-}
+package com.ximedes.ov.actor;

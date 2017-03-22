@@ -17,16 +17,16 @@ package com.ximedes.ov.client;
 
 import akka.actor.ActorSystem;
 import akka.util.Timeout;
-import com.chain.exception.ChainException;
-import com.chain.http.Client;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.ximedes.ov.shared.ClusterConstants;
 import lombok.Getter;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,10 +38,6 @@ import java.util.concurrent.TimeUnit;
  */
 @Configuration
 public class ClientConfig {
-
-    @Getter
-    @Value("${key.alias:ovchain-client}")
-    private String keyAlias;
 
     @Getter
     @Value("${actor.idActor.pool:8}")
@@ -64,15 +60,10 @@ public class ClientConfig {
     private String seedHostName;
     @Value("${seed.port:2550}")
     private int seedPort;
-    @Value("${clustering.hostname:}")
+    @Value("${clustering.hostname:127.0.0.1}")
     private String hostName;
     @Value("${clustering.port:2551}")
     private int port;
-
-    @Bean
-    Client client() throws ChainException {
-        return new Client();
-    }
 
     @Bean
     ActorSystem actorSystem() throws UnknownHostException {

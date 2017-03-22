@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ximedes.ov.client.actor;
+package com.ximedes.ov.actor;
 
 import akka.actor.AbstractActor;
 import akka.actor.OneForOneStrategy;
@@ -34,7 +34,7 @@ import static akka.actor.SupervisorStrategy.*;
 /**
  *
  */
-class Supervisor extends AbstractActor {
+public class Supervisor extends AbstractActor {
 
     /**
      * Create Props for an actor of this type.

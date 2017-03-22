@@ -16,8 +16,6 @@
 package com.ximedes.ov.backend;
 
 import akka.actor.ActorSystem;
-import com.chain.exception.ChainException;
-import com.chain.http.Client;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.ximedes.ov.shared.ClusterConstants;
@@ -26,6 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,13 +45,14 @@ public class BackendConfig {
     private int creationTimeout;
 
     @Bean
-    ActorSystem actorSystem() {
+    ActorSystem actorSystem() throws UnknownHostException {
         final Map<String, Object> options = new HashMap<>();
         options.put("akka.cluster.roles", Arrays.asList(ClusterConstants.BACKEND));
         options.put(String.format("akka.cluster.role.%s.min-nr-of-members", ClusterConstants.BACKEND), Integer.toString(1));
         options.put(String.format("akka.cluster.role.%s.min-nr-of-members", ClusterConstants.FRONTEND), Integer.toString(1));
 
         options.put("akka.cluster.seed-nodes", Arrays.asList(String.format("akka.tcp://%s@%s:%d", ClusterConstants.CLUSTER, hostName, port)));
+
         options.put("akka.remote.netty.tcp.hostname", hostName);
         options.put("akka.remote.netty.tcp.port", Integer.toString(port));
         options.put("akka.remote.netty.tcp.bind-hostname", "0.0.0.0");

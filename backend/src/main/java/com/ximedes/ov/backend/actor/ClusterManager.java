@@ -26,8 +26,8 @@ import akka.japi.pf.ReceiveBuilder;
 import com.ximedes.ov.shared.ClusterConstants;
 
 import static com.ximedes.ov.protocol.ClusterProtocol.Actor;
-import static com.ximedes.ov.protocol.ClusterProtocol.BackendRegistration;
-import static com.ximedes.ov.shared.ClusterActors.*;
+import static com.ximedes.ov.protocol.ClusterProtocol.Registration;
+import static com.ximedes.ov.shared.ClusterActorType.ID_GENERATOR;
 
 /**
  * Created by mawi on 16/08/2016.
@@ -50,36 +50,28 @@ public class ClusterManager extends AbstractLoggingActor {
         this.cluster = Cluster.get(getContext().system());
 
         receive(ReceiveBuilder
-                .match(ClusterEvent.CurrentClusterState.class, this::currentClusterState)
                 .match(ClusterEvent.MemberUp.class, this::memberUp)
                 .matchAny(this::unhandled)
                 .build());
     }
 
     private void memberUp(ClusterEvent.MemberUp message) {
+        log().info("memberUp : member up: {}", message);
         register(message.member());
     }
 
-    void currentClusterState(final ClusterEvent.CurrentClusterState state) {
-        for (Member member : state.getMembers()) {
-            if (member.status().equals(MemberStatus.up())) {
-                register(member);
-            }
-        }
-    }
-
     void register(final Member member) {
-        log().debug("register: roles [{}]", String.join(",", member.getRoles()));
+        log().info("register: roles [{}]", String.join(",", member.getRoles()));
 
         if (member.hasRole(ClusterConstants.FRONTEND)) {
             final String idActorPath = idGenerator.path().toStringWithAddress(getContext().provider().getDefaultAddress());
 
-            BackendRegistration message = BackendRegistration.newBuilder()
+            final Registration message = Registration.newBuilder()
                     .addActors(Actor.newBuilder().setType(ID_GENERATOR.toString()).setActorPath(idActorPath).build())
                     .build();
 
             final String actorPath = String.format("%s/user/%s", member.address(), ClusterConstants.FRONTEND);
-            log().info("register: '{}'", actorPath);
+            log().info("connect: '{}'", actorPath);
             getContext().actorSelection(actorPath).tell(message, self());
         }
     }
@@ -87,7 +79,7 @@ public class ClusterManager extends AbstractLoggingActor {
     @Override
     public void preStart() {
         //subscribe to cluster changes, MemberUp
-        cluster.subscribe(self(), ClusterEvent.MemberUp.class);
+        cluster.subscribe(self(), ClusterEvent.initialStateAsEvents(), ClusterEvent.MemberUp.class);
     }
 
     @Override

@@ -21,83 +21,31 @@ import akka.actor.Props;
 import akka.japi.pf.ReceiveBuilder;
 import com.chain.api.Transaction;
 import com.chain.exception.ChainException;
-import com.ximedes.ov.client.service.LedgerService;
-import lombok.Value;
-import scala.concurrent.duration.Duration;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.IntStream;
 
 /**
  *
  */
 class LedgerActor extends AbstractLoggingActor {
 
-    private final LedgerService ledgerService;
-
-    private final Queue<Transaction.Builder> queue = new LinkedBlockingQueue();
+    private final ActorRef backendLedger;
 
     /**
      * Create Props for an actor of this type.
      */
-    public static Props props(final LedgerService ledgerService) {
-        return Props.create(LedgerActor.class, ledgerService);
+    public static Props props(final ActorRef backendLedger) {
+        return Props.create(LedgerActor.class, backendLedger);
     }
 
-    private LedgerActor(final LedgerService ledgerService) {
-        this.ledgerService = ledgerService;
+    private LedgerActor(final ActorRef backendLedger) {
+        this.backendLedger = backendLedger;
 
         receive(ReceiveBuilder
-                .match(Tick.class, this::scheduler)
                 .match(Transaction.Builder.class, this::submit)
                 .matchAny(this::unhandled)
                 .build());
     }
 
-    @Override
-    public void preStart() throws Exception {
-        super.preStart();
-        scheduleCall();
-    }
-
-    /**
-     * scheduler called, send all transactions to the ledger
-     */
-    private void scheduler(Tick tick) {
-        if (!queue.isEmpty()) {
-
-            final List<Transaction.Builder> data = new ArrayList<>(queue.size());
-            data.addAll(queue);
-
-            // process the queue per batchsize elements
-            final int BatchSize = 10;
-            IntStream.range(0, (queue.size() + BatchSize - 1) / BatchSize)
-                    .mapToObj(i -> data.subList(i * BatchSize, Math.min(data.size(), (i + 1) * BatchSize)))
-                    .forEach(batch -> ledgerService.submit(self(), batch, "1"));
-
-            queue.clear();
-        }
-
-        // schedule next call
-        scheduleCall();
-    }
-
     private void submit(Transaction.Builder msg) throws ChainException {
-        queue.add(msg);
-    }
-
-    private void scheduleCall() {
-        getContext().system().scheduler().scheduleOnce(
-                Duration.create(1000, TimeUnit.MILLISECONDS),
-                self(), new Tick(), getContext().dispatcher(), ActorRef.noSender());
-    }
-
-    @Value
-    public static final class Tick implements Serializable {
+       backendLedger.tell(msg, self());
     }
 }

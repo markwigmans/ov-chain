@@ -15,10 +15,17 @@
  */
 package com.ximedes.ov.client.service;
 
-import com.chain.http.Client;
+import akka.actor.ActorRef;
+import akka.pattern.PatternsCS;
+import akka.util.Timeout;
+import com.ximedes.ov.client.actor.ActorManager;
+import com.ximedes.ov.protocol.SimulationProtocol;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.TimeUnit;
+
+import static com.ximedes.ov.protocol.SimulationProtocol.Reset;
 
 /**
  *
@@ -26,17 +33,15 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class SimulationService {
+    private final ActorRef resetActor;
 
-    private final Client client;
-    private final AccountService accountService;
-
-    public SimulationService(Client client, AccountService accountService) {
-        this.client = client;
-        this.accountService = accountService;
+    public SimulationService(final ActorManager actorManager) {
+        this.resetActor = actorManager.getResetActor();
     }
 
     public void reset() throws Exception {
         log.info("Reset simulation");
-        accountService.reset();
+        // TODO check if all the intended actors have send a response
+        PatternsCS.ask(resetActor, Reset.getDefaultInstance(), Timeout.apply(10, TimeUnit.SECONDS)).toCompletableFuture().get();
     }
 }

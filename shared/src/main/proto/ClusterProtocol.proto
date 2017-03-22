@@ -3,7 +3,7 @@ syntax = "proto2";
 option java_package = "com.ximedes.ov.protocol";
 option java_outer_classname = "ClusterProtocol";
 
-message BackendRegistration {
+message Registration {
     repeated Actor actors = 1;
 }
 

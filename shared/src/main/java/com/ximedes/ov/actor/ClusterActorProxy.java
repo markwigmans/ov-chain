@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.ximedes.ov.client.actor;
+package com.ximedes.ov.actor;
 
 import akka.actor.*;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.pf.ReceiveBuilder;
 import com.ximedes.ov.protocol.ClusterProtocol;
-import com.ximedes.ov.shared.ClusterActors;
+import com.ximedes.ov.shared.ClusterActorType;
 import scala.PartialFunction;
 import scala.runtime.BoxedUnit;
 
@@ -31,11 +31,11 @@ import java.util.stream.Collectors;
 /**
  *
  */
-public class BackendProxy extends AbstractActorWithUnboundedStash {
+public class ClusterActorProxy extends AbstractActorWithUnboundedStash {
     private final LoggingAdapter log = Logging.getLogger(context().system(), this);
 
     private ActorRef remoteActor;
-    private final ClusterActors actorType;
+    private final ClusterActorType actorType;
 
     private final PartialFunction<Object, BoxedUnit> unconnected;
     private final PartialFunction<Object, BoxedUnit> initialized;
@@ -45,21 +45,22 @@ public class BackendProxy extends AbstractActorWithUnboundedStash {
     /**
      * Create Props for an actor of this type.
      */
-    public static Props props(final ClusterActors actorType) {
-        return Props.create(BackendProxy.class, actorType);
+    public static Props props(final ClusterActorType actorType) {
+        return Props.create(ClusterActorProxy.class, actorType);
     }
 
-    private BackendProxy(final ClusterActors actorType) {
+    private ClusterActorProxy(final ClusterActorType actorType) {
         this.actorType = actorType;
 
         unconnected = ReceiveBuilder
-                .match(ClusterProtocol.BackendRegistration.class, this::BackendRegistration)
+                .match(ClusterProtocol.Registration.class, this::Registration)
                 .match(ActorIdentity.class, this::actorIdentity)
                 .matchAny(msg -> stash())
                 .build();
 
         initialized = ReceiveBuilder
-                .match(ClusterProtocol.BackendRegistration.class, m -> { // ignore
+                .match(ClusterProtocol.Registration.class, m -> {
+                    log.info("already registered");
                 })
                 .matchAny(this::forward)
                 .build();
@@ -68,9 +69,7 @@ public class BackendProxy extends AbstractActorWithUnboundedStash {
         context().become(unconnected);
     }
 
-    private void BackendRegistration(ClusterProtocol.BackendRegistration message) {
-        log.info("BackendRegistration ({})", actorType);
-
+    private void Registration(ClusterProtocol.Registration message) {
         final List<ClusterProtocol.Actor> refs = message.getActorsList()
                 .stream()
                 .filter(r -> r.getType().equals(actorType.toString()))
@@ -78,11 +77,11 @@ public class BackendProxy extends AbstractActorWithUnboundedStash {
         if (!refs.isEmpty()) {
             // actorPath found, so let's ask it's identity for it's actorRef
             final String actorPath = refs.get(0).getActorPath();
-            log.debug("found, path '{}'", actorPath);
+            log.info("found, path '{}'", actorPath);
             identifyId = UUID.randomUUID().toString();
             getContext().actorSelection(actorPath).tell(new Identify(identifyId), self());
         } else {
-            log.warning("Type ({}) not found!", actorType);
+            log.debug("Type ({}) not found", actorType);
         }
     }
 
